@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net472</TargetFramework><LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Source/UnifiedDialogueProtocol.cs" Link="UnifiedDialogueProtocol.cs" />
+    <Compile Include="../Source/RimTalkJson.cs" Link="RimTalkJson.cs" />
+    <Compile Include="../Source/DialogueDiscovery.cs" Link="DialogueDiscovery.cs" />
+    <PackageReference Include="Lib.Harmony" Version="2.4.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

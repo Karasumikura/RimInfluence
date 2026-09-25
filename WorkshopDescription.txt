@@ -1,0 +1,49 @@
+[h1]RimInfluence[/h1]
+
+[h2]中文[/h2]
+RimInfluence 让 RimTalk 对话中的行动真正发生在游戏里。玩家提出的请求、殖民者自己的决定，以及角色之间的约定，都可以形成任务。
+
+[b]功能[/b]
+[list]
+[*]根据对话安排立即或稍后执行的任务；角色忙碌时，任务会等待其空闲。
+[*]支持多名殖民者分别行动，以及按完成次数、时间、需求等条件持续执行。
+[*]可以在对话中取消已安排的任务。任务结束后记录结果，失败时可由角色说明原因。
+[*]设置中可以查看已接入的能力，并为新安装的 Mod 生成能力说明。
+[/list]
+
+[b]目前接入的能力[/b]
+当前版本接入 150 多项行动与工作能力，包括砍树、收获、播种、搬运、清扫、采矿、建造、修理、狩猎、烹饪、制作、研究、医疗、救援、灭火、驯兽、喂食、进食、装备武器、攻击、拘捕和原地等待。游戏及已加载 Mod 提供的其他工作能力也会加入能力列表，具体数量随 Mod 组合变化。
+
+[b]仍在测试阶段。遇到 Bug 或有功能建议，欢迎在评论区留言。[/b]
+
+[h2]English[/h2]
+RimInfluence turns actions discussed in RimTalk conversations into in-game tasks. Player requests, pawns' own decisions, and agreements between characters can all lead to action.
+
+[b]Features[/b]
+[list]
+[*]Schedule tasks now or later. Busy pawns take their tasks when available.
+[*]Assign tasks to multiple pawns and continue work until a specified count, time, or need condition is reached.
+[*]Cancel plans through dialogue. Track outcomes and optionally let pawns explain failures.
+[*]View connected capabilities in settings and generate descriptions for newly installed mods.
+[/list]
+
+[b]Currently connected capabilities[/b]
+The current version connects over 150 actions and work capabilities, including tree cutting, harvesting, sowing, hauling, cleaning, mining, building, repairing, hunting, cooking, crafting, research, medical care, rescue, firefighting, animal care, feeding, eating, equipping weapons, attacking, arresting, and waiting in place. Other work added by the game and your installed mods also appears in the capability list, so the total varies with your mod setup.
+
+[b]Still in testing. Found a bug or have a feature suggestion? Please leave a comment.[/b]
+
+[h2]日本語[/h2]
+RimInfluence は、RimTalk の会話で決まった行動をゲーム内のタスクにします。プレイヤーの依頼、入植者自身の決定、キャラクター同士の約束から行動が生まれます。
+
+[b]機能[/b]
+[list]
+[*]今すぐ、または後で行うタスクを設定できます。忙しい入植者は手が空いてから取りかかります。
+[*]複数の入植者にタスクを割り当て、回数、時間、欲求などの条件まで作業を続けられます。
+[*]会話から予定を取り消せます。結果を記録し、失敗時にはキャラクターに理由を説明させることもできます。
+[*]設定画面で接続済みの能力を確認し、新しく導入した Mod の能力説明を生成できます。
+[/list]
+
+[b]現在接続されている能力[/b]
+現在のバージョンでは150以上の行動・仕事に対応しています。伐採、収穫、種まき、運搬、掃除、採掘、建築、修理、狩猟、料理、製作、研究、治療、救助、消火、動物の世話、給餌、食事、武器の装備、攻撃、逮捕、その場での待機などです。ゲーム本体や導入済み Mod の仕事も能力一覧に加わるため、総数は Mod の構成によって変わります。
+
+[b]現在テスト中です。バグや機能の提案があれば、コメント欄でお知らせください。[/b]

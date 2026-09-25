@@ -1,0 +1,6 @@
+Source/bin/
+Source/obj/
+Tests/bin/
+Tests/obj/
+Assemblies/*
+!Assemblies/RimInfluence.dll
