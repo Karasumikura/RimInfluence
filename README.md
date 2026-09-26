@@ -1,6 +1,6 @@
 # RimInfluence
 
-Version: 0.1.0-beta
+Version: 0.1.1-beta
 
 ## 中文
 
@@ -15,7 +15,7 @@ RimInfluence 让 RimTalk 对话中的行动成为游戏任务。玩家请求、�
 
 ### 目前接入的能力
 
-当前版本接入 150 多项行动与工作能力，包括砍树、收获、播种、搬运、清扫、采矿、建造、修理、狩猎、烹饪、制作、研究、医疗、救援、灭火、驯兽、喂食、进食、装备武器、攻击、拘捕和原地等待。游戏及已加载 Mod 提供的其他工作也会加入能力列表，数量随 Mod 组合变化。
+当前版本接入 150 多项行动与工作能力，包括砍树、收获、播种、搬运、清扫、采矿、建造、修理、狩猎、烹饪、制作、研究、医疗、救援、灭火、驯兽、喂食、进食、摄取指定物品、装备武器、攻击、拘捕和原地等待。游戏及已加载 Mod 提供的其他工作也会加入能力列表，数量随 Mod 组合变化。
 
 仍在测试阶段。遇到 Bug 或有功能建议，欢迎在评论区留言。
 
@@ -32,7 +32,7 @@ RimInfluence turns actions discussed in RimTalk conversations into in-game tasks
 
 ### Currently connected capabilities
 
-The current version connects over 150 actions and work capabilities, including tree cutting, harvesting, sowing, hauling, cleaning, mining, building, repairing, hunting, cooking, crafting, research, medical care, rescue, firefighting, animal care, feeding, eating, equipping weapons, attacking, arresting, and waiting in place. Other work from the game and installed mods also joins the capability list, so the total varies with your mod setup.
+The current version connects over 150 actions and work capabilities, including tree cutting, harvesting, sowing, hauling, cleaning, mining, building, repairing, hunting, cooking, crafting, research, medical care, rescue, firefighting, animal care, feeding, eating, consuming a specified item, equipping weapons, attacking, arresting, and waiting in place. Other work from the game and installed mods also joins the capability list, so the total varies with your mod setup.
 
 Still in testing. Found a bug or have a feature suggestion? Please leave a comment.
 
@@ -49,6 +49,6 @@ RimInfluence は、RimTalk の会話で決まった行動をゲーム内のタ�
 
 ### 現在接続されている能力
 
-現在のバージョンでは150以上の行動・仕事に対応しています。伐採、収穫、種まき、運搬、掃除、採掘、建築、修理、狩猟、料理、製作、研究、治療、救助、消火、動物の世話、給餌、食事、武器の装備、攻撃、逮捕、その場での待機などです。ゲーム本体や導入済み Mod の仕事も能力一覧に加わるため、総数は Mod の構成によって変わります。
+現在のバージョンでは150以上の行動・仕事に対応しています。伐採、収穫、種まき、運搬、掃除、採掘、建築、修理、狩猟、料理、製作、研究、治療、救助、消火、動物の世話、給餌、食事、指定した物品の摂取、武器の装備、攻撃、逮捕、その場での待機などです。ゲーム本体や導入済み Mod の仕事も能力一覧に加わるため、総数は Mod の構成によって変わります。
 
 現在テスト中です。バグや機能の提案があれば、コメント欄でお知らせください。

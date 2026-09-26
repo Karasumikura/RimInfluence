@@ -19,7 +19,7 @@ internal static class CapabilityCatalog
 
     public static List<string> Ids()
     {
-        var ids = new List<string> { "none", "need:Eat", "interaction:Arrest", "interaction:Attack", "command:StandStill" };
+        var ids = new List<string> { "none", "need:Eat", "interaction:Ingest", "interaction:Arrest", "interaction:Attack", "command:StandStill" };
         ids.AddRange(LegacyActions.Select(a => "legacy:" + a));
         ids.AddRange(DefDatabase<WorkGiverDef>.AllDefsListForReading
             .Where(d => d?.giverClass != null)
@@ -34,6 +34,7 @@ internal static class CapabilityCatalog
         if (!RimInfluenceMod.Settings.IsCapabilityEnabled(id)) return false;
         if (!CapabilityAudit.IsStructurallyAvailable(id)) return false;
         if (id.Equals("need:Eat", StringComparison.OrdinalIgnoreCase)) return true;
+        if (id.Equals("interaction:Ingest", StringComparison.OrdinalIgnoreCase)) return true;
         if (id.Equals("interaction:Arrest", StringComparison.OrdinalIgnoreCase)) return true;
         if (id.Equals("interaction:Attack", StringComparison.OrdinalIgnoreCase)) return true;
         if (id.Equals("command:StandStill", StringComparison.OrdinalIgnoreCase)) return true;
@@ -50,7 +51,8 @@ internal static class CapabilityCatalog
         if (id == "command:StandStill") return id + " | current position: wait without walking; indefinite unless duration specified";
         if (id == "interaction:Arrest") return id + " | named pawn: arrest and imprison; targetPawnName";
         if (id == "interaction:Attack") return id + " | named pawn: ranged/melee attack; targetPawnName";
-        if (id == "need:Eat") return id + " | food: eat using native food selection";
+        if (id == "need:Eat") return id + " | hunger: autonomously find a meal; no specified item";
+        if (id == "interaction:Ingest") return id + " | specified ingestible item: drink, eat or use; targetDefName is the ThingDef ID";
         if (id.StartsWith("legacy:", StringComparison.OrdinalIgnoreCase)
             && Enum.TryParse(id.Substring(7), true, out InfluenceAction action))
         {
@@ -106,7 +108,9 @@ internal static class CapabilityCatalog
         if (id.Equals("command:StandStill", StringComparison.OrdinalIgnoreCase))
             return "command:StandStill | stand still / 原地等待 at the pawn's current position, without wandering. Uses the native Wait job. For a specified duration use RepeatUntil with ElapsedTime and stopAmount/stopUnit; without a duration continue until explicitly cancelled or interrupted by the game.";
         if (id.Equals("need:Eat", StringComparison.OrdinalIgnoreCase))
-            return "need:Eat | eat / 吃东西 using native food selection";
+            return "need:Eat | satisfy hunger using native food selection, without selecting a particular item";
+        if (id.Equals("interaction:Ingest", StringComparison.OrdinalIgnoreCase))
+            return "interaction:Ingest | consume / 摄取 a specified drink, drug or food item. Supply its ThingDef in targetDefName, or its displayed name in targetQuery. Uses the native Ingest job on a reachable, reservable, ingestible item. Unlike need:Eat, this does not search for a meal.";
         if (id.StartsWith("legacy:", StringComparison.OrdinalIgnoreCase)
             && Enum.TryParse(id.Substring(7), true, out InfluenceAction action))
             return ShortCardText(id);
@@ -141,6 +145,8 @@ internal static class CapabilityCatalog
     {
         if (id.Equals("need:Eat", StringComparison.OrdinalIgnoreCase))
             return (LanguageDatabase.activeLanguage?.folderName ?? "").StartsWith("Chinese", StringComparison.OrdinalIgnoreCase) ? "吃东西" : "eating";
+        if (id.Equals("interaction:Ingest", StringComparison.OrdinalIgnoreCase))
+            return RimInfluenceUiText.T("摄取物品", "ingesting", "摂取");
         if (id.Equals("interaction:Arrest", StringComparison.OrdinalIgnoreCase))
             return (LanguageDatabase.activeLanguage?.folderName ?? "").StartsWith("Chinese", StringComparison.OrdinalIgnoreCase) ? "拘捕" : "arresting";
         if (id.Equals("interaction:Attack", StringComparison.OrdinalIgnoreCase))

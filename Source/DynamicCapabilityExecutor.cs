@@ -12,11 +12,15 @@ internal static class DynamicCapabilityExecutor
 {
     public static bool Handles(string id) => !string.IsNullOrWhiteSpace(id)
         && (id.StartsWith("work:", StringComparison.OrdinalIgnoreCase)
-            || id.StartsWith("need:", StringComparison.OrdinalIgnoreCase));
+            || id.StartsWith("need:", StringComparison.OrdinalIgnoreCase)
+            || id.Equals("interaction:Ingest", StringComparison.OrdinalIgnoreCase));
 
     public static bool TryStart(ScheduledTask task)
     {
-        if (task.CapabilityId.Equals("need:Eat", StringComparison.OrdinalIgnoreCase)) return TryEat(task);
+        if (task.CapabilityId.Equals("interaction:Ingest", StringComparison.OrdinalIgnoreCase)) return TryIngest(task);
+        if (task.CapabilityId.Equals("need:Eat", StringComparison.OrdinalIgnoreCase))
+            return string.IsNullOrWhiteSpace(task.TargetDefName) && string.IsNullOrWhiteSpace(task.TargetQuery)
+                ? TryEat(task) : TryIngest(task);
         if (task.CapabilityId.StartsWith("work:", StringComparison.OrdinalIgnoreCase)) return TryWorkGiver(task);
         return false;
     }
@@ -43,6 +47,42 @@ internal static class DynamicCapabilityExecutor
             Log.Warning("[RimInfluence] native eat resolver failed: " + ex);
             return false;
         }
+    }
+
+    private static bool TryIngest(ScheduledTask task)
+    {
+        if (string.IsNullOrWhiteSpace(task.TargetDefName) && string.IsNullOrWhiteSpace(task.TargetQuery))
+        {
+            task.LastExecutionError = "摄取指定物品需要物品定义或名称。";
+            task.LastExecutionFailureKind = TaskExecutionFailureKind.Other;
+            return false;
+        }
+        ThingDef targetDef = string.IsNullOrWhiteSpace(task.TargetDefName) ? null
+            : DefDatabase<ThingDef>.GetNamedSilentFail(task.TargetDefName);
+        if (!string.IsNullOrWhiteSpace(task.TargetDefName) && (targetDef == null || targetDef.ingestible == null))
+        {
+            task.LastExecutionError = "指定的物品不存在或不能摄取：" + task.TargetDefName;
+            task.LastExecutionFailureKind = TaskExecutionFailureKind.Other;
+            return false;
+        }
+        Thing thing = task.Pawn.Map.listerThings.AllThings
+            .Where(t => t.Spawned && t.def?.ingestible != null && t.stackCount > 0)
+            .Where(t => targetDef == null || t.def == targetDef)
+            .Where(t => string.IsNullOrWhiteSpace(task.TargetQuery)
+                || t.def.defName.IndexOf(task.TargetQuery, StringComparison.OrdinalIgnoreCase) >= 0
+                || t.LabelCap.ToString().IndexOf(task.TargetQuery, StringComparison.OrdinalIgnoreCase) >= 0)
+            .Where(t => !t.IsForbidden(task.Pawn) && task.Pawn.CanReserve(t)
+                && task.Pawn.CanReach(t, PathEndMode.Touch, Danger.Some))
+            .OrderBy(t => task.Pawn.Position.DistanceToSquared(t.Position)).FirstOrDefault();
+        if (thing == null)
+        {
+            task.LastExecutionError = "未找到可以摄取且能够到达的指定物品。";
+            task.LastExecutionFailureKind = TaskExecutionFailureKind.NoExecutableTarget;
+            return false;
+        }
+        Job job = JobMaker.MakeJob(JobDefOf.Ingest, thing);
+        job.count = 1;
+        return Take(task, job, thing.LabelShort);
     }
 
     private static bool TryWorkGiver(ScheduledTask task)

@@ -126,6 +126,11 @@ internal static class CapabilityAudit
                     null, new[] { typeof(Pawn) }, null) == null)
                     throw new MissingMethodException("原生食物 JobGiver 入口不存在");
             }
+            else if (id.Equals("interaction:Ingest", StringComparison.OrdinalIgnoreCase))
+            {
+                result.Kind = "interaction";
+                if (JobDefOf.Ingest == null) throw new MissingMethodException("原生摄取 JobDef 不存在");
+            }
             else if (id.Equals("interaction:Arrest", StringComparison.OrdinalIgnoreCase))
             {
                 result.Kind = "interaction";

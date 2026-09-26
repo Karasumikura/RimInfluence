@@ -6,7 +6,7 @@ namespace RimInfluence;
 
 internal static class RimInfluenceUiText
 {
-    public const string Version = "0.1.0-beta";
+    public const string Version = "0.1.1-beta";
     private static string Language => LanguageDatabase.activeLanguage?.folderName ?? "";
     public static string T(string chinese, string english, string japanese)
     {
@@ -18,6 +18,7 @@ internal static class RimInfluenceUiText
     public static string CapabilityDescription(string id)
     {
         if (id == "need:Eat") return T("寻找食物并进食", "Find food and eat", "食事を探して食べる");
+        if (id == "interaction:Ingest") return T("摄取指定的饮品、药物或食物", "Consume a specified drink, drug, or food", "指定した飲み物・薬物・食べ物を摂取する");
         if (id == "interaction:Arrest") return T("拘捕指定角色", "Arrest a named pawn", "指定した人物を逮捕する");
         if (id == "interaction:Attack") return T("攻击指定角色", "Attack a named pawn", "指定した人物を攻撃する");
         if (id == "command:StandStill") return T("留在原地等待", "Wait at the current position", "その場で待機する");

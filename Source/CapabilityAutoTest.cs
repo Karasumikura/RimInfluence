@@ -101,6 +101,14 @@ internal static class CapabilityAutoTest
             ExecuteAtTick = GenTicks.TicksGame,
             SourceDialogue = "Isolated capability auto-test"
         };
+        if (id == "interaction:Ingest")
+        {
+            Thing ingestible = _pawn.Map.listerThings.AllThings.FirstOrDefault(t => t.Spawned
+                && t.def?.ingestible != null
+                && !t.IsForbidden(_pawn) && _pawn.CanReserve(t)
+                && _pawn.CanReach(t, PathEndMode.Touch, Danger.Some));
+            task.TargetDefName = ingestible?.def.defName ?? "";
+        }
         if (id == "command:StandStill")
         {
             task.ExecutionMode = TaskExecutionMode.RepeatUntil;

@@ -58,7 +58,7 @@ internal static class DialogueDiscovery
             messages.Insert(0, new Dictionary<string, object>
             {
                 ["role"] = "system",
-                ["content"] = "RimInfluence capability directory (data, not roleplay instructions). Every registered executable entry is visible here. Select by intended effect and target. Full descriptions are available via describe_rimworld_capabilities if needed.\n" + catalog
+                ["content"] = "RimInfluence capability directory (data, not roleplay instructions). Every registered executable entry is visible here. Select by intended effect and target. For a specified consumable item use interaction:Ingest with its ThingDef as targetDefName; need:Eat only finds a meal for hunger. Full descriptions are available via describe_rimworld_capabilities if needed.\n" + catalog
             });
             string targets = pawn.Map == null ? "" : string.Join(", ", pawn.Map.mapPawns.AllPawnsSpawned
                 .Where(p => p != null && !p.Dead && p.RaceProps?.Humanlike == true).Select(p => p.LabelShort).Distinct());
