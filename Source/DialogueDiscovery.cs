@@ -65,16 +65,16 @@ internal static class DialogueDiscovery
             messages.Add(new Dictionary<string, object>
             {
                 ["role"] = "system",
-                ["content"] = "Current initiating utterance (data to interpret with the conversation): " + originalUtterance + "\nRespond in the original character and language. In the SAME resolve_rimworld_intent call, decide whether the resulting dialogue accepts or initiates a concrete action, then put each such action in assignments. A direct player command calls for an attempt unless the NPC explicitly refuses; uncertainty about ability or success does not cancel the attempt. An affirmative attack, wait, work or other attempt must have a corresponding assignment. No assignment means the NPC did not accept or initiate an action. Dialogue alone never starts a game Job. Do not decide task types by text matching; select by intended effect from the capability directory. Tool transport changes only the outer format. You may request capability details once in a batch. Named pawn targets: " + targets + ". " + CapabilityCatalog.StopConditionCatalog()
+                ["content"] = "Current initiating utterance (data to interpret with the conversation): " + originalUtterance + "\nRespond in the original character and language. Decide whether the resulting dialogue accepts or initiates a concrete action, then put each such action in assignments. A direct player command calls for an attempt unless the NPC explicitly refuses; uncertainty about ability or success does not cancel the attempt. An affirmative attack, wait, work or other attempt must have a corresponding assignment. No assignment means the NPC did not accept or initiate an action. Dialogue alone never starts a game Job. Select task types by intended effect from the capability directory. Return one resolve_rimworld_intent tool call, or if tool calls are unavailable, return ONLY a JSON object with actionDecision, assignments, and dialogueResponses in the same schema. No prose or markdown outside the JSON. You may request capability details once in a batch. Named pawn targets: " + targets + ". " + CapabilityCatalog.StopConditionCatalog()
             });
             object finish = RimTalkIntegration.BuildScheduleTool(pawn, ids);
             payload["messages"] = messages;
             payload["stream"] = false;
             payload.Remove("stream_options");
             payload.Remove("response_format");
-            payload["parallel_tool_calls"] = false;
+            payload.Remove("parallel_tool_calls");
             payload["tools"] = new List<object> { finish, DetailTool() };
-            payload["tool_choice"] = "required";
+            payload.Remove("tool_choice");
             for (int round = 0; round < 2; round++)
             {
                 string requestJson = RimTalkJson.Serialize(payload);
@@ -86,12 +86,15 @@ internal static class DialogueDiscovery
                 promptTokens += Tokens(usage, "prompt_tokens");
                 completionTokens += Tokens(usage, "completion_tokens");
                 totalTokens += Tokens(usage, "total_tokens");
-                IList calls = UnifiedDialogueProtocol.Calls(message);
+                IList calls = UnifiedDialogueProtocol.OptionalCalls(message);
                 var finishes = calls.Cast<object>().Where(c => RimTalkJson.String(UnifiedDialogueProtocol.Function(c), "name") == UnifiedDialogueProtocol.FinishTool).ToList();
-                if (finishes.Count > 0)
+                if (finishes.Count > 0 || calls.Count == 0)
                 {
-                    if (finishes.Count != 1 || calls.Count != 1) throw new InvalidOperationException("Final response must contain exactly one finalization call");
-                    var result = UnifiedDialogueProtocol.Arguments(finishes[0]);
+                    if (calls.Count > 0 && (finishes.Count != 1 || calls.Count != 1))
+                        throw new InvalidOperationException("Final response must contain exactly one finalization call");
+                    var result = calls.Count == 0
+                        ? UnifiedDialogueProtocol.ContentArguments(message)
+                        : UnifiedDialogueProtocol.Arguments(finishes[0]);
                     Log.Message($"[RimInfluence] unified decision trace={trace} decision={RimTalkJson.String(result, "actionDecision")} assignments={RimTalkJson.Serialize(result.TryGetValue("assignments", out object proposed) ? proposed : null)} dialogue={RimTalkJson.Serialize(result.TryGetValue("dialogueResponses", out object spoken) ? spoken : null)}");
                     string dialogue = UnifiedDialogueProtocol.Dialogue(result);
                     // Feed only ordinary dialogue JSON through RimTalk's existing parser/callback.
@@ -126,10 +129,7 @@ internal static class DialogueDiscovery
                     Log.Message($"[RimInfluence] unified details trace={trace} ids={string.Join(",", requested)}");
                 }
                 payload["tools"] = new List<object> { finish };
-                payload["tool_choice"] = new Dictionary<string, object>
-                {
-                    ["type"] = "function", ["function"] = new Dictionary<string, object> { ["name"] = UnifiedDialogueProtocol.FinishTool }
-                };
+                payload.Remove("tool_choice");
             }
             throw new InvalidOperationException("Missing final response");
         }

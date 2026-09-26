@@ -13,6 +13,8 @@ internal static class TransportTests
         internal readonly Queue<string> Responses = new Queue<string>();
         private Task<string> SendRequestAsync(string json, UnityEngine.Networking.DownloadHandler handler)
         {
+            if (RimTalkJson.Parse(json).ContainsKey("tool_choice"))
+                throw new InvalidOperationException("Thinking mode does not support this tool_choice");
             Requests.Add(json);
             return Task.FromResult(Responses.Dequeue());
         }
@@ -46,6 +48,13 @@ internal static class TransportTests
             }
         } }
     });
+    private static string ContentResponse(string content) => RimTalkJson.Serialize(new Dictionary<string, object>
+    {
+        ["choices"] = new List<object> { new Dictionary<string, object>
+        {
+            ["finish_reason"] = "stop", ["message"] = new Dictionary<string, object> { ["role"] = "assistant", ["content"] = content }
+        } }
+    });
     internal static void Run()
     {
         var pawn = new Verse.Pawn();
@@ -62,6 +71,7 @@ internal static class TransportTests
         Check(messages.Contains("original personality") && messages.Contains("original conversation") && messages.Contains("请站着不动"), "original prompt and initiating utterance preserved");
         Check(messages.Contains("work:NewModTask") && messages.Contains("command:StandStill"), "complete short directory present");
         Check(!payload.ContainsKey("response_format") && (bool)payload["stream"] == false, "no conflicting response format");
+        Check(!payload.ContainsKey("tool_choice") && !payload.ContainsKey("parallel_tool_calls"), "thinking-compatible request omits tool choice");
         client = new Client(); handler = new Handler();
         client.Responses.Enqueue(Response(UnifiedDialogueProtocol.DetailTool, "{\"ids\":[\"work:NewModTask\",\"command:StandStill\"]}"));
         client.Responses.Enqueue(Response(UnifiedDialogueProtocol.FinishTool, Final));
@@ -71,7 +81,14 @@ internal static class TransportTests
         messages = RimTalkJson.Serialize(payload["messages"]);
         Check(messages.Contains("tool_call_id") && messages.Contains("FULL DETAILS work:NewModTask"), "real tool-result continuation");
         Check(((IList)payload["tools"]).Count == 1, "second round only allows finalization");
+        Check(!payload.ContainsKey("tool_choice"), "detail continuation also omits tool choice");
         DialogueDiscovery.Drain();
+        client = new Client(); handler = new Handler();
+        client.Responses.Enqueue(ContentResponse(Final));
+        DialogueDiscovery.ResolveAsync(client, Original, handler, pawn, "请站着不动").GetAwaiter().GetResult();
+        Check(client.Requests.Count == 1 && handler.Content.Contains("我在这里等你"), "thinking model plain JSON response delivers dialogue");
+        DialogueDiscovery.Drain();
+        Check(RimTalkIntegration.Dispatched == 3, "thinking model plain JSON response dispatches action");
         client = new Client(); handler = new Handler();
         client.Responses.Enqueue(Response(UnifiedDialogueProtocol.DetailTool, "{\"ids\":[\"invented\"]}"));
         bool failed = false;
@@ -82,7 +99,7 @@ internal static class TransportTests
         DialogueDiscovery.ResolveAsync(client, Original, handler, pawn, "请站着不动").GetAwaiter().GetResult();
         Verse.Find.World = new object();
         DialogueDiscovery.Drain();
-        Check(RimTalkIntegration.Dispatched == 2, "stale world response never dispatches");
+        Check(RimTalkIntegration.Dispatched == 3, "stale world response never dispatches");
         Console.WriteLine("PASS " + checks + " bridge checks (real bridge, simulated transport)");
     }
 }

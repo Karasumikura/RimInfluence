@@ -78,6 +78,8 @@ internal static class Program
         var calls = UnifiedDialogueProtocol.Calls(message);
         Check(calls.Count == 1 && RimTalkJson.String(usage, "total_tokens") == "42", "tool completion and usage parsed");
         Check(UnifiedDialogueProtocol.Dialogue(UnifiedDialogueProtocol.Arguments(calls[0])) == dialogue, "full tool transport roundtrip");
+        Check(UnifiedDialogueProtocol.Dialogue(UnifiedDialogueProtocol.ContentArguments(RimTalkJson.Parse("{\"content\":" + RimTalkJson.Serialize(RimTalkJson.Serialize(result)) + "}"))) == dialogue,
+            "plain JSON content uses same validated dialogue schema");
         Reject(() => UnifiedDialogueProtocol.Message(response.Replace("\"finish_reason\":\"tool_calls\"", "\"finish_reason\":\"length\""), out _), "truncated response");
         Reject(() => UnifiedDialogueProtocol.Calls(RimTalkJson.Parse("{\"content\":\"我去做\"}")), "plain acceptance cannot fabricate tasks");
     }

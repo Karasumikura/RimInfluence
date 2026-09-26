@@ -32,6 +32,23 @@ internal static class UnifiedDialogueProtocol
         return calls;
     }
 
+    internal static IList OptionalCalls(IDictionary<string, object> message)
+        => message.TryGetValue("tool_calls", out object value) && value is IList calls ? calls : new object[0];
+
+    internal static IDictionary<string, object> ContentArguments(IDictionary<string, object> message)
+    {
+        string content = RimTalkJson.String(message, "content").Trim();
+        if (content.StartsWith("```", StringComparison.Ordinal))
+        {
+            int newline = content.IndexOf('\n');
+            if (newline < 0 || !content.EndsWith("```", StringComparison.Ordinal))
+                throw new InvalidOperationException("Malformed JSON code block");
+            content = content.Substring(newline + 1, content.Length - newline - 4).Trim();
+        }
+        return RimTalkJson.Parse(content)
+            ?? throw new InvalidOperationException("Model returned neither a tool call nor a structured JSON response");
+    }
+
     internal static IDictionary<string, object> Function(object call)
     {
         var data = RimTalkJson.Object(call);
