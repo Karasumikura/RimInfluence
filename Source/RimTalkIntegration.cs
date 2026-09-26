@@ -151,8 +151,10 @@ internal static class RimTalkIntegration
             Pawn pawn = request?.GetType().GetProperty("Initiator")?.GetValue(request) as Pawn;
             if (pawn == null) return true;
             string rawPrompt = request.GetType().GetProperty("RawPrompt")?.GetValue(request) as string ?? "";
-            if (rawPrompt.IndexOf("任务失败反馈", StringComparison.OrdinalIgnoreCase) >= 0) return true;
-            __result = DialogueDiscovery.ResolveAsync(__instance, jsonContent, downloadHandler, pawn, rawPrompt);
+            int continuationDepth = 0;
+            RimTalkBridge.TryGetContinuation(request, out continuationDepth);
+            if (continuationDepth < 0) return true;
+            __result = DialogueDiscovery.ResolveAsync(__instance, jsonContent, downloadHandler, pawn, rawPrompt, continuationDepth);
             return false;
         }
         catch (Exception ex)
@@ -163,7 +165,7 @@ internal static class RimTalkIntegration
         }
     }
 
-    internal static bool ProcessAssignments(Pawn requestPawn, IDictionary<string, object> root, string raw, HashSet<string> offeredIds = null)
+    internal static bool ProcessAssignments(Pawn requestPawn, IDictionary<string, object> root, string raw, HashSet<string> offeredIds = null, int continuationDepth = 0)
     {
         if (root == null || !root.TryGetValue("assignments", out object value) || !(value is IEnumerable items)) return false;
         int operations = 0;
@@ -195,7 +197,7 @@ internal static class RimTalkIntegration
                 recipientAssignment["actor"] = actor;
                 bool result;
                 if (string.Equals(decision, "Schedule", StringComparison.OrdinalIgnoreCase))
-                    result = RimInfluenceApi.TrySchedule(requestPawn, recipientAssignment, raw);
+                    result = RimInfluenceApi.TrySchedule(requestPawn, recipientAssignment, raw, continuationDepth);
                 else if (string.Equals(decision, "Cancel", StringComparison.OrdinalIgnoreCase))
                     result = RimInfluenceApi.TryCancel(requestPawn, recipientAssignment);
                 else

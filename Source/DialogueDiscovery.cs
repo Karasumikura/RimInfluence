@@ -21,6 +21,7 @@ internal static class DialogueDiscovery
         public IDictionary<string, object> Result;
         public string Dialogue;
         public HashSet<string> Offered;
+        public int ContinuationDepth;
     }
 
     private static readonly ConcurrentQueue<Pending> Completed = new ConcurrentQueue<Pending>();
@@ -30,12 +31,12 @@ internal static class DialogueDiscovery
         while (Completed.TryDequeue(out Pending item))
         {
             if (!ReferenceEquals(item.World, Find.World) || item.Pawn == null || item.Pawn.Destroyed) continue;
-            try { RimTalkIntegration.ProcessAssignments(item.Pawn, item.Result, item.Dialogue, item.Offered); }
+            try { RimTalkIntegration.ProcessAssignments(item.Pawn, item.Result, item.Dialogue, item.Offered, item.ContinuationDepth); }
             catch (Exception ex) { Log.Error("[RimInfluence] assignment dispatch failed: " + ex); }
         }
     }
 
-    public static async Task<string> ResolveAsync(object client, string originalJson, object handler, Pawn pawn, string originalUtterance)
+    public static async Task<string> ResolveAsync(object client, string originalJson, object handler, Pawn pawn, string originalUtterance, int continuationDepth = 0)
     {
         var watch = Stopwatch.StartNew();
         string trace = Guid.NewGuid().ToString("N").Substring(0, 8);
@@ -107,7 +108,7 @@ internal static class DialogueDiscovery
                         ["usage"] = new Dictionary<string, object> { ["prompt_tokens"] = promptTokens, ["completion_tokens"] = completionTokens, ["total_tokens"] = totalTokens }
                     };
                     deliver.Invoke(handler, new object[] { "data: " + RimTalkJson.Serialize(chunk) });
-                    Completed.Enqueue(new Pending { Pawn = pawn, World = world, Result = result, Dialogue = dialogue, Offered = offered });
+                    Completed.Enqueue(new Pending { Pawn = pawn, World = world, Result = result, Dialogue = dialogue, Offered = offered, ContinuationDepth = continuationDepth });
                     int assignments = ((IList)result["assignments"]).Count;
                     Log.Message($"[RimInfluence] unified result trace={trace} rounds={rounds} assignments={assignments} elapsedMs={watch.ElapsedMilliseconds} promptTokens={promptTokens} completionTokens={completionTokens} totalTokens={totalTokens} tokenUsageReported={usage != null}");
                     return response;

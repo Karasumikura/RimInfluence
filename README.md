@@ -1,6 +1,6 @@
 # RimInfluence
 
-Version: 0.1.2-beta
+Version: 0.1.3-beta
 
 ## 中文
 
@@ -11,6 +11,7 @@ RimInfluence 让 RimTalk 对话中的行动成为游戏任务。玩家请求、�
 - 安排立即或延迟执行的任务；角色忙碌时等待空闲。
 - 为多名角色派发任务，按次数、时间或需求条件持续执行。
 - 通过对话取消任务，记录任务结果，并可让角色说明失败原因。
+- 可根据失败后的真实结果继续对话并安排下一步；可开关并设置最大续轮数。
 - 在设置中查看能力状态、逐项开启或关闭能力，并为新安装的 Mod 生成能力说明。
 
 ### 目前接入的能力
@@ -28,6 +29,7 @@ RimInfluence turns actions discussed in RimTalk conversations into in-game tasks
 - Schedule immediate or delayed tasks. Busy pawns take their tasks when available.
 - Assign tasks to multiple pawns and continue work until a count, time, or need condition is reached.
 - Cancel tasks through dialogue, track outcomes, and optionally let pawns explain failures.
+- Continue dialogue and choose another action after an observed failure; configure the toggle and maximum rounds.
 - View capability status, enable or disable individual capabilities, and generate descriptions for newly installed mods.
 
 ### Currently connected capabilities
@@ -45,6 +47,7 @@ RimInfluence は、RimTalk の会話で決まった行動をゲーム内のタ�
 - 今すぐ、または後で行うタスクを設定できます。忙しい入植者は手が空いてから取りかかります。
 - 複数の入植者にタスクを割り当て、回数、時間、欲求などの条件まで作業を続けられます。
 - 会話から予定を取り消し、結果を記録できます。失敗時には理由を説明させることもできます。
+- 失敗の実際の結果から会話を続け、次の行動を決められます。オン・オフと最大回数を設定できます。
 - 設定画面で能力の状態を確認し、能力ごとに有効・無効を切り替え、新しく導入した Mod の能力説明を生成できます。
 
 ### 現在接続されている能力

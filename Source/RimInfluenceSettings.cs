@@ -11,6 +11,8 @@ public sealed class RimInfluenceSettings : ModSettings
 {
     public bool RetryFailedTasks = false;
     public bool ReportFailureDialogue = true;
+    public bool EnableMultiTurn = true;
+    public int MaxContinuationRounds = 3;
     public bool MarkTriggeredJobs = true;
     public int RetryCooldownTicks = 60000;
     public List<CapabilityCard> Cards = new List<CapabilityCard>();
@@ -28,6 +30,8 @@ public sealed class RimInfluenceSettings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref ReportFailureDialogue, "reportFailureDialogue", true);
+        Scribe_Values.Look(ref EnableMultiTurn, "enableMultiTurn", true);
+        Scribe_Values.Look(ref MaxContinuationRounds, "maxContinuationRounds", 3);
         Scribe_Values.Look(ref MarkTriggeredJobs, "markTriggeredJobs", true);
         Scribe_Values.Look(ref RetryCooldownTicks, "retryCooldownTicks", 60000);
         Scribe_Collections.Look(ref Cards, "capabilityCards", LookMode.Deep);
@@ -36,6 +40,7 @@ public sealed class RimInfluenceSettings : ModSettings
         {
             Cards ??= new List<CapabilityCard>();
             DisabledCapabilities ??= new List<string>();
+            MaxContinuationRounds = Math.Max(1, Math.Min(20, MaxContinuationRounds));
         }
     }
 }
@@ -44,6 +49,7 @@ public sealed class RimInfluenceMod : Mod
 {
     public static RimInfluenceSettings Settings => _settings ??= LoadedModManager.GetMod<RimInfluenceMod>().GetSettings<RimInfluenceSettings>();
     private static RimInfluenceSettings _settings;
+    private string _maxContinuationRoundsBuffer;
 
     public RimInfluenceMod(ModContentPack content) : base(content) { _settings = GetSettings<RimInfluenceSettings>(); }
 
@@ -59,6 +65,12 @@ public sealed class RimInfluenceMod : Mod
             ref Settings.ReportFailureDialogue,
             RimInfluenceUiText.T("让 RimTalk 根据实际失败原因生成角色对话。", "RimTalk generates an in-character explanation of the failure.",
                 "RimTalkが実際の失敗理由をキャラクターの会話として伝えます。"));
+        listing.CheckboxLabeled(RimInfluenceUiText.T("执行结果后继续对话", "Continue dialogue after results", "実行結果から会話を続ける"),
+            ref Settings.EnableMultiTurn);
+        listing.Label(RimInfluenceUiText.T("最大续轮数（1-20）", "Maximum continuation rounds (1-20)", "継続会話の最大回数（1-20）"));
+        _maxContinuationRoundsBuffer ??= Settings.MaxContinuationRounds.ToString();
+        Widgets.TextFieldNumeric(listing.GetRect(30f), ref Settings.MaxContinuationRounds,
+            ref _maxContinuationRoundsBuffer, 1, 20);
         listing.CheckboxLabeled(RimInfluenceUiText.T("标记 RimInfluence 派发的工作", "Mark RimInfluence jobs", "RimInfluenceの仕事を表示"),
             ref Settings.MarkTriggeredJobs,
             RimInfluenceUiText.T("在角色当前工作说明中显示 RimInfluence 标记。", "Show RimInfluence in the pawn's current job label.",

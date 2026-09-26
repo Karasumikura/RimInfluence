@@ -3,7 +3,7 @@
   <name>RimInfluence</name>
   <author>karasumikura</author>
   <packageId>karasumikura.riminfluence</packageId>
-  <modVersion>0.1.2-beta</modVersion>
+  <modVersion>0.1.3-beta</modVersion>
   <supportedVersions><li>1.6</li></supportedVersions>
   <description>让 RimTalk 对话变成游戏行动。支持延迟任务、持续工作、多角色派工、取消计划和结果反馈。当前接入 150 多项行动与工作能力，包括砍树、搬运、做饭、攻击和原地等待；数量随已加载 Mod 变化。
 

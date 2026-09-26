@@ -249,7 +249,7 @@ public sealed class RimInfluenceWorldComponent : WorldComponent
         CapabilityAudit.Refresh(Tasks);
         TaskThoughts.AddFailure(task.Pawn);
         Messages.Message(RimInfluenceText.Failed(task, reason), MessageTypeDefOf.RejectInput);
-        if (RimInfluenceMod.Settings.ReportFailureDialogue)
+        if (RimInfluenceMod.Settings.ReportFailureDialogue || RimInfluenceMod.Settings.EnableMultiTurn)
         {
             task.FailureDialoguePending = true;
             Log.Message($"[RimInfluence] failure dialogue queued id={task.Id}; waiting for RimTalk availability");
@@ -258,7 +258,7 @@ public sealed class RimInfluenceWorldComponent : WorldComponent
 
     private void DrainFailureDialogues()
     {
-        if (!RimInfluenceMod.Settings.ReportFailureDialogue) return;
+        if (!RimInfluenceMod.Settings.ReportFailureDialogue && !RimInfluenceMod.Settings.EnableMultiTurn) return;
         foreach (var task in Tasks.Where(t => t != null && t.FailureDialoguePending).ToList())
         {
             if (task.Pawn == null || task.Pawn.DestroyedOrNull() || task.Pawn.Dead)
@@ -268,7 +268,16 @@ public sealed class RimInfluenceWorldComponent : WorldComponent
                 continue;
             }
             if (task.Pawn.Map == null) continue;
-            if (RimTalkBridge.TryReportFailure(task.Pawn, task.SourceDialogue, task.FailureReason))
+            bool continueAgent = RimInfluenceMod.Settings.EnableMultiTurn
+                && task.ContinuationDepth < RimInfluenceMod.Settings.MaxContinuationRounds;
+            if (!continueAgent && (task.Status == ScheduledTaskStatus.Completed || !RimInfluenceMod.Settings.ReportFailureDialogue))
+            {
+                task.FailureDialoguePending = false;
+                continue;
+            }
+            if (continueAgent
+                ? RimTalkBridge.TryContinue(task.Pawn, task)
+                : RimTalkBridge.TryReportFailure(task.Pawn, task.SourceDialogue, task.FailureReason))
             {
                 task.FailureDialoguePending = false;
                 Log.Message($"[RimInfluence] failure dialogue dequeued id={task.Id}: RimTalk accepted");
@@ -286,5 +295,7 @@ public sealed class RimInfluenceWorldComponent : WorldComponent
         CapabilityAudit.Refresh(Tasks);
         TaskThoughts.AddSuccess(task.Pawn);
         Messages.Message(RimInfluenceText.Completed(task), MessageTypeDefOf.PositiveEvent);
+        if (RimInfluenceMod.Settings.EnableMultiTurn && task.ContinuationDepth < RimInfluenceMod.Settings.MaxContinuationRounds)
+            task.FailureDialoguePending = true;
     }
 }

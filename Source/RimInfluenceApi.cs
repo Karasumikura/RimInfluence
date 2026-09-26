@@ -58,9 +58,15 @@ public static class RimInfluenceApi
         return true;
     }
 
-    internal static bool TrySchedule(Pawn pawn, IDictionary<string, object> assignment, string fallbackDialogue = "")
+    internal static bool TrySchedule(Pawn pawn, IDictionary<string, object> assignment, string fallbackDialogue = "", int continuationDepth = 0)
     {
-        return assignment != null && TrySchedule(pawn, AssignmentEnvelope(assignment), fallbackDialogue);
+        if (assignment == null) return false;
+        var component = Find.World?.GetComponent<RimInfluenceWorldComponent>();
+        int before = component?.Tasks.Count ?? 0;
+        if (!TrySchedule(pawn, AssignmentEnvelope(assignment), fallbackDialogue)) return false;
+        if (component != null && component.Tasks.Count > before)
+            component.Tasks[component.Tasks.Count - 1].ContinuationDepth = continuationDepth;
+        return true;
     }
 
     public static bool TryCancel(Pawn pawn, string json)

@@ -48,6 +48,7 @@ public sealed class ScheduledTask : IExposable
     public ScheduledTaskStatus Status;
     public string FailureReason = "";
     public bool FailureDialoguePending;
+    public int ContinuationDepth;
     public int RetryCount;
     public int StartedTick = -1;
     public TaskExecutionMode ExecutionMode = TaskExecutionMode.Once;
@@ -63,7 +64,7 @@ public sealed class ScheduledTask : IExposable
     [Unsaved] public Job ActiveJob;
     [Unsaved] public bool AutoDraftedForAttack;
     [Unsaved] public string LastExecutionError = "";
-    [Unsaved] public TaskExecutionFailureKind LastExecutionFailureKind;
+    public TaskExecutionFailureKind LastExecutionFailureKind;
     public string SourceDialogue = "";
 
     public void ExposeData()
@@ -82,6 +83,8 @@ public sealed class ScheduledTask : IExposable
         Scribe_Values.Look(ref Status, "status", ScheduledTaskStatus.Pending);
         Scribe_Values.Look(ref FailureReason, "failureReason", "");
         Scribe_Values.Look(ref FailureDialoguePending, "failureDialoguePending", false);
+        Scribe_Values.Look(ref ContinuationDepth, "continuationDepth", 0);
+        Scribe_Values.Look(ref LastExecutionFailureKind, "lastExecutionFailureKind", TaskExecutionFailureKind.None);
         Scribe_Values.Look(ref RetryCount, "retryCount");
         Scribe_Values.Look(ref StartedTick, "startedTick", -1);
         Scribe_Values.Look(ref ExecutionMode, "executionMode", TaskExecutionMode.Once);

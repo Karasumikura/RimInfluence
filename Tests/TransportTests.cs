@@ -90,6 +90,11 @@ internal static class TransportTests
         DialogueDiscovery.Drain();
         Check(RimTalkIntegration.Dispatched == 3, "thinking model plain JSON response dispatches action");
         client = new Client(); handler = new Handler();
+        client.Responses.Enqueue(Response(UnifiedDialogueProtocol.FinishTool, Final));
+        DialogueDiscovery.ResolveAsync(client, Original, handler, pawn, "previous execution failed", 2).GetAwaiter().GetResult();
+        DialogueDiscovery.Drain();
+        Check(RimTalkIntegration.LastContinuationDepth == 2, "continuation depth reaches assignment dispatch");
+        client = new Client(); handler = new Handler();
         client.Responses.Enqueue(Response(UnifiedDialogueProtocol.DetailTool, "{\"ids\":[\"invented\"]}"));
         bool failed = false;
         try { DialogueDiscovery.ResolveAsync(client, Original, handler, pawn, "请站着不动").GetAwaiter().GetResult(); } catch (InvalidOperationException) { failed = true; }
@@ -99,7 +104,7 @@ internal static class TransportTests
         DialogueDiscovery.ResolveAsync(client, Original, handler, pawn, "请站着不动").GetAwaiter().GetResult();
         Verse.Find.World = new object();
         DialogueDiscovery.Drain();
-        Check(RimTalkIntegration.Dispatched == 3, "stale world response never dispatches");
+        Check(RimTalkIntegration.Dispatched == 4, "stale world response never dispatches");
         Console.WriteLine("PASS " + checks + " bridge checks (real bridge, simulated transport)");
     }
 }
@@ -138,10 +143,12 @@ namespace RimInfluence
     internal static class RimTalkIntegration
     {
         public static int Dispatched;
+        public static int LastContinuationDepth;
         public static object BuildScheduleTool(Verse.Pawn pawn, List<string> ids) => new Dictionary<string, object>
         {
             ["type"] = "function", ["function"] = new Dictionary<string, object> { ["name"] = UnifiedDialogueProtocol.FinishTool }
         };
-        public static void ProcessAssignments(Verse.Pawn pawn, IDictionary<string, object> result, string dialogue, HashSet<string> offered) { Dispatched++; }
+        public static void ProcessAssignments(Verse.Pawn pawn, IDictionary<string, object> result, string dialogue, HashSet<string> offered, int continuationDepth)
+        { Dispatched++; LastContinuationDepth = continuationDepth; }
     }
 }
