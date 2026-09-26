@@ -6,6 +6,7 @@ namespace RimInfluence;
 
 internal static class RimInfluenceUiText
 {
+    public const string Version = "0.1.0-beta";
     private static string Language => LanguageDatabase.activeLanguage?.folderName ?? "";
     public static string T(string chinese, string english, string japanese)
     {
@@ -53,8 +54,10 @@ internal static class RimInfluenceUiText
             WorkGiverDef def = DefDatabase<WorkGiverDef>.GetNamedSilentFail(id.Substring(5));
             if (def != null)
             {
-                string name = string.IsNullOrWhiteSpace(def.gerund) ? def.verb : def.gerund;
-                return string.IsNullOrWhiteSpace(name) ? def.workType?.label ?? id : name;
+                string name = string.IsNullOrWhiteSpace(def.label)
+                    ? (string.IsNullOrWhiteSpace(def.gerund) ? def.verb : def.gerund) : def.label;
+                if (string.IsNullOrWhiteSpace(name)) name = def.workType?.label ?? id;
+                return def.emergency ? name + T("（紧急）", " (emergency)", "（緊急）") : name;
             }
         }
         return id;

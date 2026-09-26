@@ -31,6 +31,7 @@ internal static class CapabilityCatalog
     public static bool IsKnown(string id)
     {
         if (string.IsNullOrWhiteSpace(id) || id.Equals("none", StringComparison.OrdinalIgnoreCase)) return false;
+        if (!RimInfluenceMod.Settings.IsCapabilityEnabled(id)) return false;
         if (!CapabilityAudit.IsStructurallyAvailable(id)) return false;
         if (id.Equals("need:Eat", StringComparison.OrdinalIgnoreCase)) return true;
         if (id.Equals("interaction:Arrest", StringComparison.OrdinalIgnoreCase)) return true;
@@ -81,7 +82,13 @@ internal static class CapabilityCatalog
         }
         CapabilityCard saved = RimInfluenceMod.Settings.Cards
             .FirstOrDefault(card => string.Equals(card?.Id, id, StringComparison.OrdinalIgnoreCase));
-        if (saved != null) return id + " | " + Clean(saved.Description) + " | target: " + Clean(saved.Target);
+        if (saved != null)
+        {
+            WorkGiverDef describedWork = id.StartsWith("work:", StringComparison.OrdinalIgnoreCase)
+                ? DefDatabase<WorkGiverDef>.GetNamedSilentFail(id.Substring(5)) : null;
+            return id + " | " + (describedWork == null ? "" : WorkDescription(describedWork) + " | ")
+                + Clean(saved.Description) + " | target: " + Clean(saved.Target);
+        }
         return CardText(id);
     }
 
@@ -106,10 +113,18 @@ internal static class CapabilityCatalog
         if (id.StartsWith("work:", StringComparison.OrdinalIgnoreCase))
         {
             WorkGiverDef def = DefDatabase<WorkGiverDef>.GetNamedSilentFail(id.Substring(5));
-            if (def != null) return id + " | " + Clean(def.verb) + " | " + Clean(def.gerund)
-                + (def.workType == null ? "" : " | " + Clean(def.workType.label));
+            if (def != null) return id + " | " + WorkDescription(def);
         }
         return id;
+    }
+
+    public static string WorkDescription(WorkGiverDef def)
+    {
+        if (def == null) return "";
+        string label = Clean(def.label);
+        if (string.IsNullOrEmpty(label)) label = Clean(def.gerund.NullOrEmpty() ? def.verb : def.gerund);
+        if (def.emergency) label += " | emergency";
+        return label + (def.workType == null ? "" : " | " + Clean(def.workType.label));
     }
 
     public static string StopConditionCatalog()

@@ -1,4 +1,5 @@
 [h1]RimInfluence[/h1]
+Version: 0.1.0-beta
 
 [h2]中文[/h2]
 RimInfluence 让 RimTalk 对话中的行动真正发生在游戏里。玩家提出的请求、殖民者自己的决定，以及角色之间的约定，都可以形成任务。
@@ -8,7 +9,7 @@ RimInfluence 让 RimTalk 对话中的行动真正发生在游戏里。玩家提�
 [*]根据对话安排立即或稍后执行的任务；角色忙碌时，任务会等待其空闲。
 [*]支持多名殖民者分别行动，以及按完成次数、时间、需求等条件持续执行。
 [*]可以在对话中取消已安排的任务。任务结束后记录结果，失败时可由角色说明原因。
-[*]设置中可以查看已接入的能力，并为新安装的 Mod 生成能力说明。
+[*]设置中可以查看已接入的能力、逐项开启或关闭，并为新安装的 Mod 生成能力说明。
 [/list]
 
 [b]目前接入的能力[/b]
@@ -24,7 +25,7 @@ RimInfluence turns actions discussed in RimTalk conversations into in-game tasks
 [*]Schedule tasks now or later. Busy pawns take their tasks when available.
 [*]Assign tasks to multiple pawns and continue work until a specified count, time, or need condition is reached.
 [*]Cancel plans through dialogue. Track outcomes and optionally let pawns explain failures.
-[*]View connected capabilities in settings and generate descriptions for newly installed mods.
+[*]View connected capabilities in settings, enable or disable each one, and generate descriptions for newly installed mods.
 [/list]
 
 [b]Currently connected capabilities[/b]
@@ -40,7 +41,7 @@ RimInfluence は、RimTalk の会話で決まった行動をゲーム内のタ�
 [*]今すぐ、または後で行うタスクを設定できます。忙しい入植者は手が空いてから取りかかります。
 [*]複数の入植者にタスクを割り当て、回数、時間、欲求などの条件まで作業を続けられます。
 [*]会話から予定を取り消せます。結果を記録し、失敗時にはキャラクターに理由を説明させることもできます。
-[*]設定画面で接続済みの能力を確認し、新しく導入した Mod の能力説明を生成できます。
+[*]設定画面で接続済みの能力を確認し、能力ごとに有効・無効を切り替え、新しく導入した Mod の能力説明を生成できます。
 [/list]
 
 [b]現在接続されている能力[/b]

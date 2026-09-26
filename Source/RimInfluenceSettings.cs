@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -12,6 +14,16 @@ public sealed class RimInfluenceSettings : ModSettings
     public bool MarkTriggeredJobs = true;
     public int RetryCooldownTicks = 60000;
     public List<CapabilityCard> Cards = new List<CapabilityCard>();
+    public List<string> DisabledCapabilities = new List<string>();
+
+    public bool IsCapabilityEnabled(string id) => !DisabledCapabilities.Contains(id, StringComparer.OrdinalIgnoreCase);
+
+    public void SetCapabilityEnabled(string id, bool enabled)
+    {
+        if (enabled) DisabledCapabilities.RemoveAll(value => string.Equals(value, id, StringComparison.OrdinalIgnoreCase));
+        else if (IsCapabilityEnabled(id)) DisabledCapabilities.Add(id);
+        Write();
+    }
 
     public override void ExposeData()
     {
@@ -19,7 +31,12 @@ public sealed class RimInfluenceSettings : ModSettings
         Scribe_Values.Look(ref MarkTriggeredJobs, "markTriggeredJobs", true);
         Scribe_Values.Look(ref RetryCooldownTicks, "retryCooldownTicks", 60000);
         Scribe_Collections.Look(ref Cards, "capabilityCards", LookMode.Deep);
-        if (Scribe.mode == LoadSaveMode.PostLoadInit) Cards ??= new List<CapabilityCard>();
+        Scribe_Collections.Look(ref DisabledCapabilities, "disabledCapabilities", LookMode.Value);
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            Cards ??= new List<CapabilityCard>();
+            DisabledCapabilities ??= new List<string>();
+        }
     }
 }
 
@@ -36,6 +53,8 @@ public sealed class RimInfluenceMod : Mod
     {
         var listing = new Listing_Standard();
         listing.Begin(inRect);
+        listing.Label("RimInfluence v" + RimInfluenceUiText.Version);
+        listing.Gap(8f);
         listing.CheckboxLabeled(RimInfluenceUiText.T("任务失败后由 NPC 反馈", "NPC explains failed tasks", "タスク失敗時にNPCが説明する"),
             ref Settings.ReportFailureDialogue,
             RimInfluenceUiText.T("让 RimTalk 根据实际失败原因生成角色对话。", "RimTalk generates an in-character explanation of the failure.",

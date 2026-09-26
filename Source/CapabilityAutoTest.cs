@@ -46,7 +46,7 @@ internal static class CapabilityAutoTest
             _candidates = Find.Maps.SelectMany(map => map.mapPawns.FreeColonistsSpawned)
                 .Where(p => p?.jobs != null && !p.Downed && !p.Dead).Distinct().ToList();
             if (_candidates.Count == 0) { Finish("No available colonist in test save."); return true; }
-            _ids = CapabilityCatalog.Ids().Where(id => id != "none").ToList();
+            _ids = CapabilityCatalog.Ids().Where(CapabilityCatalog.IsKnown).ToList();
             _started = true;
             _nextTick = GenTicks.TicksGame + 60;
             Results.Add("RimInfluence isolated native Job auto-test");
