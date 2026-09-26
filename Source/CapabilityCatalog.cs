@@ -88,10 +88,15 @@ internal static class CapabilityCatalog
         {
             WorkGiverDef describedWork = id.StartsWith("work:", StringComparison.OrdinalIgnoreCase)
                 ? DefDatabase<WorkGiverDef>.GetNamedSilentFail(id.Substring(5)) : null;
-            return id + " | " + (describedWork == null ? "" : WorkDescription(describedWork) + " | ")
-                + Clean(saved.Description) + " | target: " + Clean(saved.Target);
+            return id + " | " + (describedWork == null ? "" : ShortWorkDescription(describedWork) + " | ")
+                + Clip(saved.Description, 80) + (string.IsNullOrWhiteSpace(saved.Target) ? "" : " | " + Clip(saved.Target, 40));
         }
-        return CardText(id);
+        if (id.StartsWith("work:", StringComparison.OrdinalIgnoreCase))
+        {
+            WorkGiverDef work = DefDatabase<WorkGiverDef>.GetNamedSilentFail(id.Substring(5));
+            if (work != null) return id + " | " + ShortWorkDescription(work);
+        }
+        return id;
     }
 
     public static string CardText(string id)
@@ -131,14 +136,25 @@ internal static class CapabilityCatalog
         return label + (def.workType == null ? "" : " | " + Clean(def.workType.label));
     }
 
-    public static string StopConditionCatalog()
+    private static string ShortWorkDescription(WorkGiverDef def)
     {
-        var needs = DefDatabase<NeedDef>.AllDefsListForReading
-            .OrderBy(d => d.defName)
-            .Select(d => d.defName + " | " + Clean(d.label));
-        return "Available generic stop conditions: NoMoreTargets, NeedLevel, HealthPercent, ElapsedTime, IterationCount. "
-            + "Use NoMoreTargets for all/every/全部/砍光/搬完/清完 requests.\n"
-            + "Loaded NeedDefs for NeedLevel:\n" + string.Join("\n", needs);
+        string label = Clean(def.label);
+        if (label.Length == 0) label = Clean(def.gerund.NullOrEmpty() ? def.verb : def.gerund);
+        string type = Clean(def.workType?.label);
+        return label + (type.Length == 0 || type.Equals(label, StringComparison.OrdinalIgnoreCase) ? "" : " / " + type)
+            + (def.emergency ? " / emergency" : "");
+    }
+
+    public static string StopConditionCatalog(Pawn pawn)
+    {
+        IEnumerable<Pawn> actors = pawn?.Map == null ? new[] { pawn }
+            : pawn.Map.mapPawns.AllPawnsSpawned.Where(candidate => candidate != null
+                && candidate.RaceProps?.Humanlike == true && candidate.Faction == pawn.Faction);
+        var needs = actors.Where(actor => actor?.needs?.AllNeeds != null)
+            .SelectMany(actor => actor.needs.AllNeeds).Select(need => need.def.defName)
+            .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(name => name);
+        return "Stops: NoMoreTargets, NeedLevel, HealthPercent, ElapsedTime, IterationCount. "
+            + "NeedLevel NeedDef IDs for available actors: " + string.Join(",", needs);
     }
 
     public static string Label(string id, InfluenceAction fallback)
@@ -164,4 +180,10 @@ internal static class CapabilityCatalog
     }
 
     private static string Clean(string value) => (value ?? "").Replace("\n", " ").Replace("\r", " ").Trim();
+
+    private static string Clip(string value, int length)
+    {
+        string clean = Clean(value);
+        return clean.Length <= length ? clean : clean.Substring(0, length).TrimEnd();
+    }
 }

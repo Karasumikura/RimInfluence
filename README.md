@@ -1,6 +1,6 @@
 # RimInfluence
 
-Version: 0.1.1-beta
+Version: 0.1.2-beta
 
 ## 中文
 

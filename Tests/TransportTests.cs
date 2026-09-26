@@ -133,7 +133,7 @@ namespace RimInfluence
         public static bool IsKnown(string id) => Ids().Contains(id);
         public static string CardText(string id) => "FULL DETAILS " + id;
         public static string ShortCardText(string id) => id + " | short effect";
-        public static string StopConditionCatalog() => "Stop conditions";
+        public static string StopConditionCatalog(Verse.Pawn pawn) => "Stop conditions";
     }
     internal static class RimTalkIntegration
     {

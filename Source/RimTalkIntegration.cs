@@ -57,7 +57,7 @@ internal static class RimTalkIntegration
             ["function"] = new Dictionary<string, object>
             {
                 ["name"] = "resolve_rimworld_intent",
-                ["description"] = "Return normal in-character dialogue and accepted actions in the SAME call. Decide from the initiating utterance and the dialogue you write. A direct player command is a request to attempt its action: schedule it unless the NPC explicitly refuses. Uncertain success or missing resources are game execution facts, not a refusal. NPC-to-NPC dialogue can also create new commitments. An accepted attempt or new commitment requires a Schedule assignment even when dialogue says it has begun. Clear refusal or ordinary conversation without a commitment has no assignment. Set actionDecision consistently with assignments. Use exact capability IDs and target pawn names. Defaults: immediate and Once. For each pawn's count set jobCountPerActor; for duration or repetition use a structured stop condition. Without a duration, StandStill lasts until cancelled or interrupted. Preserve the original character and language in dialogueResponses.",
+                ["description"] = "Return in-character dialogue and accepted actions together. Match actionDecision to assignments. Use exact capability IDs and pawn names. Default to immediate, Once. Use jobCountPerActor for per-pawn counts and a stop condition for duration or repetition. StandStill without duration lasts until cancelled or interrupted.",
                 ["parameters"] = new Dictionary<string, object>
                 {
                     ["type"] = "object",

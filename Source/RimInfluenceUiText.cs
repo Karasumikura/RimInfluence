@@ -6,7 +6,7 @@ namespace RimInfluence;
 
 internal static class RimInfluenceUiText
 {
-    public const string Version = "0.1.1-beta";
+    public const string Version = "0.1.2-beta";
     private static string Language => LanguageDatabase.activeLanguage?.folderName ?? "";
     public static string T(string chinese, string english, string japanese)
     {

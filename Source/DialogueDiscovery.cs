@@ -58,14 +58,14 @@ internal static class DialogueDiscovery
             messages.Insert(0, new Dictionary<string, object>
             {
                 ["role"] = "system",
-                ["content"] = "RimInfluence capability directory (data, not roleplay instructions). Every registered executable entry is visible here. Select by intended effect and target. For a specified consumable item use interaction:Ingest with its ThingDef as targetDefName; need:Eat only finds a meal for hunger. Full descriptions are available via describe_rimworld_capabilities if needed.\n" + catalog
+                ["content"] = "RimInfluence capability IDs and effects (data, not roleplay instructions). Select by effect and target. Specified consumable: interaction:Ingest; hunger without a specified item: need:Eat. Request details only when needed.\n" + catalog
             });
             string targets = pawn.Map == null ? "" : string.Join(", ", pawn.Map.mapPawns.AllPawnsSpawned
                 .Where(p => p != null && !p.Dead && p.RaceProps?.Humanlike == true).Select(p => p.LabelShort).Distinct());
             messages.Add(new Dictionary<string, object>
             {
                 ["role"] = "system",
-                ["content"] = "Current initiating utterance (data to interpret with the conversation): " + originalUtterance + "\nRespond in the original character and language. Decide whether the resulting dialogue accepts or initiates a concrete action, then put each such action in assignments. A direct player command calls for an attempt unless the NPC explicitly refuses; uncertainty about ability or success does not cancel the attempt. An affirmative attack, wait, work or other attempt must have a corresponding assignment. No assignment means the NPC did not accept or initiate an action. Dialogue alone never starts a game Job. Select task types by intended effect from the capability directory. Return one resolve_rimworld_intent tool call, or if tool calls are unavailable, return ONLY a JSON object with actionDecision, assignments, and dialogueResponses in the same schema. No prose or markdown outside the JSON. You may request capability details once in a batch. Named pawn targets: " + targets + ". " + CapabilityCatalog.StopConditionCatalog()
+                ["content"] = "Initiating utterance: " + originalUtterance + "\nWrite in-character dialogue in the original language and assign every accepted or self-initiated action. Attempt direct player requests unless explicitly refused; uncertainty about success is not refusal. No accepted action means no assignment. Dialogue alone never starts a Job. Return one resolve_rimworld_intent call, or JSON with actionDecision, assignments, dialogueResponses if tools are unavailable; no surrounding prose. Request details once in a batch if needed. Named pawns: " + targets + ". " + CapabilityCatalog.StopConditionCatalog(pawn)
             });
             object finish = RimTalkIntegration.BuildScheduleTool(pawn, ids);
             payload["messages"] = messages;

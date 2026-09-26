@@ -1,5 +1,5 @@
 [h1]RimInfluence[/h1]
-Version: 0.1.1-beta
+Version: 0.1.2-beta
 
 [h2]中文[/h2]
 RimInfluence 让 RimTalk 对话中的行动真正发生在游戏里。玩家提出的请求、殖民者自己的决定，以及角色之间的约定，都可以形成任务。
